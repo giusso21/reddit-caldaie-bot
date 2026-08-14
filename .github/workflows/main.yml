@@ -12,7 +12,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: Scarica il codice del repo
+      - name: Scarica il codice del repository
         uses: actions/checkout@v4
 
       - name: Prepara Python
@@ -21,18 +21,18 @@ jobs:
           python-version: "3.12"
 
       - name: Installa le librerie necessarie
-        run: pip install -r reddit-caldat
+        run: pip install -r reddit-caldaie-bot-github/requirements.txt
 
       - name: Esegui il controllo
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python reddit-caldaie-bot-g
+        run: python reddit-caldaie-bot-github/bot_github.py
 
       - name: Salva i post già notificati
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add reddit-caldaie-bot-github/seen_posts.json
-          git diff --quiet --cached || gia' notificati"
+          git diff --quiet --cached || git commit -m "Aggiorna post gia' notificati"
           git push
