@@ -27,6 +27,7 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GOOGLE_ALERTS_RSS_URL: ${{ secrets.GOOGLE_ALERTS_RSS_URL }}
         run: python reddit-caldaie-bot-github/bot_github.py
 
       - name: Salva i post già notificati
