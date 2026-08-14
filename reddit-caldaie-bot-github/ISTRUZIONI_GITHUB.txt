@@ -1,0 +1,131 @@
+ISTRUZIONI - Far girare il bot su GitHub Actions (gratis, anche a PC spento)
+==============================================================================
+
+Perche' questa versione: PythonAnywhere ha reso a pagamento gli "Scheduled
+Tasks" anche sul piano gratuito. GitHub Actions offre lo stesso risultato
+(uno script che parte da solo, a orari fissi, su un server sempre acceso)
+gratuitamente, tramite i cosiddetti "workflow pianificati".
+
+Frequenza: ogni 15 minuti (come bot.py sul PC), 24 ore su 24, anche a PC
+spento. Nessuna carta di credito richiesta, solo un account GitHub gratuito.
+
+
+PASSO 1 - Creare un account GitHub (salta se ce l'hai gia')
+------------------------------------------------------------
+1. Vai su https://github.com/join
+2. Inserisci una email, scegli una password e un nome utente.
+3. Verifica l'email quando richiesto.
+
+
+PASSO 2 - Creare il bot Telegram e ottenere TOKEN e CHAT ID
+------------------------------------------------------------
+(Salta questo passo se l'hai gia' fatto in precedenza per bot.py o
+bot_pythonanywhere.py: puoi riusare lo stesso TOKEN e CHAT ID)
+
+1. Su Telegram cerca "BotFather", scrivigli /newbot e segui le istruzioni:
+   ti dara' un TOKEN tipo "123456789:AAExxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx".
+2. Cerca "userinfobot" su Telegram, scrivigli "ciao": ti rispondera' con il
+   tuo CHAT ID (un numero).
+3. Vai sulla chat del TUO bot (quello creato al punto 1) e scrivigli un
+   messaggio qualsiasi, altrimenti non potra' scriverti per primo.
+
+
+PASSO 3 - Creare il repository su GitHub
+------------------------------------------------------------
+1. Una volta loggato su github.com, clicca sul "+" in alto a destra ->
+   "New repository".
+2. Nome: ad esempio "reddit-caldaie-bot".
+3. Visibilita': scegli "Public". Non e' un problema di privacy, perche' il
+   TOKEN e il CHAT ID NON finiranno mai nel codice (vanno in un posto
+   separato e protetto, il "Secrets", vedi Passo 5) - nel repository ci
+   sono solo il programma e gli ID dei post gia' notificati, senza nessun
+   dato personale. Scegliendo "Public" il repository ottiene minuti di
+   esecuzione ILLIMITATI e gratuiti; con "Private" saresti comunque
+   limitato a 2000 minuti al mese gratis, sufficienti ma piu' risicati per
+   un controllo ogni 15 minuti.
+4. NON spuntare "Add a README file".
+5. Clicca "Create repository".
+
+
+PASSO 4 - Caricare i file
+------------------------------------------------------------
+1. Nella pagina del repository appena creato, clicca sul link
+   "uploading an existing file" (o vai su "Add file" -> "Upload files").
+2. Trascina dentro TUTTA la cartella
+   C:\Users\user\reddit-caldaie-bot-github\
+   (o tutti i file al suo interno, incluse le sottocartelle .github\workflows\).
+   GitHub mantiene automaticamente la struttura delle cartelle. Devono
+   arrivare questi file:
+       bot_github.py
+       requirements.txt
+       seen_posts.json
+       .github/workflows/check.yml
+3. In basso, scrivi un breve messaggio (es. "Primo caricamento") e clicca
+   "Commit changes".
+4. Verifica che nella pagina principale del repository sia visibile la
+   cartella ".github" - se manca, il workflow non partira': ricarica solo
+   quel file seguendo di nuovo il punto 2.
+
+
+PASSO 5 - Inserire TOKEN e CHAT ID come Secrets
+------------------------------------------------------------
+Qui, a differenza delle versioni precedenti, TOKEN e CHAT ID NON si scrivono
+dentro al file: si salvano in un'area protetta del repository che il
+workflow legge automaticamente, senza che compaiano mai nel codice.
+
+1. Nel repository, vai su "Settings" (in alto).
+2. Nel menu a sinistra: "Secrets and variables" -> "Actions".
+3. Clicca "New repository secret".
+4. Nome: TELEGRAM_BOT_TOKEN - Valore: il tuo token del Passo 2. Clicca
+   "Add secret".
+5. Ripeti: Nome: TELEGRAM_CHAT_ID - Valore: il tuo chat ID del Passo 2.
+
+
+PASSO 6 - Test manuale
+------------------------------------------------------------
+1. Vai sulla scheda "Actions" del repository.
+2. Se compare un messaggio per abilitare i workflow, clicca per
+   confermarlo.
+3. A sinistra clicca sul workflow "Controllo Reddit caldaie".
+4. Clicca "Run workflow" (menu a tendina) -> "Run workflow" per lanciarlo
+   subito, senza aspettare i 15 minuti.
+5. Dopo una trentina di secondi ricarica la pagina: dovresti vedere
+   un'esecuzione in corso o completata (pallino giallo poi verde). Clicca
+   sull'esecuzione per leggere il log, identico a quello visto su
+   PythonAnywhere (Avvio controllo, eventuali "limite di richieste (429),
+   aspetto e riprovo", "Notificato: ...", "Controllo completato").
+6. Se c'era un post pertinente nelle ultime ore, dovresti ricevere subito
+   la notifica su Telegram.
+
+
+DA QUESTO MOMENTO
+------------------------------------------------------------
+Il workflow parte da solo ogni 15 minuti, 24 ore su 24, senza bisogno che
+il PC sia acceso o che tu faccia nulla. Ogni esecuzione aggiorna da sola il
+file seen_posts.json nel repository (vedrai commit automatici firmati
+"github-actions[bot]": e' normale, e' cosi' che il bot si ricorda cosa ha
+gia' segnalato).
+
+
+DOMANDE FREQUENTI
+------------------------------------------------------------
+- "Devo pagare qualcosa?" No. Con repository pubblico i minuti di Actions
+  sono illimitati e gratuiti.
+
+- "Riceverò due volte lo stesso post?" No: come nelle versioni precedenti,
+  il programma si ricorda i post gia' segnalati in seen_posts.json, che qui
+  viene salvato automaticamente nel repository dopo ogni esecuzione.
+
+- "Posso vedere se ha girato correttamente?" Si': nella scheda "Actions" del
+  repository trovi lo storico di tutte le esecuzioni passate, con il log
+  completo di ciascuna.
+
+- "Il controllo non e' partito esattamente ogni 15 minuti." Normale: GitHub
+  puo' ritardare i workflow pianificati di qualche minuto nei momenti di
+  traffico alto sulla piattaforma. Non e' un errore del bot.
+
+- "Voglio cambiare parole chiave, subreddit o frequenza." Per parole chiave
+  e subreddit, modifica le liste SUBREDDITS o KEYWORDS in bot_github.py
+  (Settings -> apri il file -> icona matita per modificarlo -> Commit
+  changes). Per la frequenza, modifica la riga "cron" nel file
+  .github/workflows/check.yml (es. "*/30 * * * *" per ogni 30 minuti).
